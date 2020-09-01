@@ -22,7 +22,7 @@ local hotkeys_popup = require("awful.hotkeys_popup").widget
 --                      require("awful.hotkeys_popup.keys")
 local my_table      = awful.util.table or gears.table -- cd go4.{0,1} compatibility
 local dpi           = require("beautiful.xresources").apply_dpi
-local remote = require("awful.remote")
+-- local remote = require("awful.remote")
 -- }}}
 
 -- {{{ Error handling
@@ -257,7 +257,8 @@ root.buttons(my_table.join(
 globalkeys = my_table.join(
     -- list programs via fzf and run them.
     awful.key({ modkey }, "r", function ()
-            awful.spawn(popup_program("awesome-client \\\"local awful = require('awful') ; awful.spawn('$(compgen -c | fzf)')\\\""))
+            -- awful.spawn(popup_program("awesome-client \\\"local awful = require('awful') ; awful.spawn('$(compgen -c | fzf)')\\\""))
+            awful.spawn(popup_program("exec setsid $(compgen -c | fzf)"))
         end,
         {description = "run prompt", group = "launcher"}),
 
