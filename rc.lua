@@ -706,13 +706,18 @@ awful.rules.rules = {
     { rule = { class = "firefox" },
       properties = { tag = awful.util.tagnames[2] } },
     { rule = { class = "kitty", instance = "popup"},
-        properties = { 
+        properties = {
             placement = awful.placement.top+awful.placement.center_horizontal,
             above = true,
 			sticky = true,
 			skip_taskbar = true,
             floating = true,
-            titlebars_enabled = false
+            titlebars_enabled = false,
+            callback = function (c)
+                c:connect_signal("unfocus", function (c)
+                    c:kill()
+                end)
+            end
         }},
     { rule = { class = "Gimp", role = "gimp-image-window" },
           properties = { maximized = true } },
