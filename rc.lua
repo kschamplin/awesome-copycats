@@ -20,8 +20,9 @@ local lain          = require("lain")
 local freedesktop   = require("freedesktop")
 local hotkeys_popup = require("awful.hotkeys_popup").widget
 --                      require("awful.hotkeys_popup.keys")
-local my_table      = awful.util.table or gears.table -- 4.{0,1} compatibility
+local my_table      = awful.util.table or gears.table -- cd go4.{0,1} compatibility
 local dpi           = require("beautiful.xresources").apply_dpi
+local remote = require("awful.remote")
 -- }}}
 
 -- {{{ Error handling
@@ -73,19 +74,6 @@ awful.spawn.with_shell(
 
 -- {{{ Variable definitions
 
-local themes = {
-    "blackburn",       -- 1
-    "copland",         -- 2
-    "dremora",         -- 3
-    "holo",            -- 4
-    "multicolor",      -- 5
-    "powerarrow",      -- 6
-    "powerarrow-dark", -- 7
-    "rainbow",         -- 8
-    "steamburn",       -- 9
-    "vertex",          -- 10
-}
-
 local chosen_theme = "insanity"
 local modkey       = "Mod4"
 local altkey       = "Mod1"
@@ -97,8 +85,17 @@ local gui_editor   = os.getenv("GUI_EDITOR") or "gvim"
 local browser      = os.getenv("BROWSER") or "firefox"
 local scrlocker    = "slock"
 
+local function popup_program(cmd)
+    return terminal .. "\
+        -o remember_window_size=no \
+        -o initial_window_width=120c \
+        -o initial_window_height=20c" .. 
+        " --name popup  zsh -c \"source $HOME/.zshrc && " .. cmd .. "\""
+end
+
+
 awful.util.terminal = terminal
-awful.util.tagnames = { "Term", "FF", "Code", "Chat", "5" }
+awful.util.tagnames = { "", "", "Code", "Chat", "5" }
 awful.layout.layouts = {
     awful.layout.suit.spiral,
     awful.layout.suit.floating,
@@ -198,6 +195,7 @@ local myawesomemenu = {
     { "restart", awesome.restart },
     { "quit", function() awesome.quit() end }
 }
+
 awful.util.mymainmenu = freedesktop.menu.build({
     icon_size = beautiful.menu_height or dpi(16),
     before = {
@@ -209,6 +207,9 @@ awful.util.mymainmenu = freedesktop.menu.build({
         -- other triads can be put here
     }
 })
+
+
+
 -- hide menu when mouse leaves it
 --awful.util.mymainmenu.wibox:connect_signal("mouse::leave", function() awful.util.mymainmenu:hide() end)
 
@@ -254,6 +255,12 @@ root.buttons(my_table.join(
 
 -- {{{ Key bindings
 globalkeys = my_table.join(
+    -- list programs via fzf and run them.
+    awful.key({ modkey }, "r", function ()
+            awful.spawn(popup_program("awesome-client \\\"local awful = require('awful') ; awful.spawn('$(compgen -c | fzf)')\\\""))
+        end,
+        {description = "run prompt", group = "launcher"}),
+
     -- Take a screenshot
     -- https://github.com/lcpz/dots/blob/master/bin/screenshot
     awful.key({ altkey }, "p", function() os.execute("screenshot") end,
@@ -439,6 +446,9 @@ globalkeys = my_table.join(
     awful.key({ }, "XF86MonBrightnessDown", function () os.execute("xbacklight -dec 10") end,
               {description = "-10%", group = "hotkeys"}),
 
+
+    -- Pulse volume ctrl
+    -- awful.key({ }, "XF86AudioRaiseVolume", function () os.execute("pactl set-sink-volume 0 +1%%")),
     -- ALSA volume control
     awful.key({ altkey }, "Up",
         function ()
@@ -545,8 +555,8 @@ globalkeys = my_table.join(
         {description = "show rofi", group = "launcher"}),
     --]]
     -- Prompt
-    awful.key({ modkey }, "r", function () awful.screen.focused().mypromptbox:run() end,
-              {description = "run prompt", group = "launcher"}),
+    -- awful.key({ modkey }, "r", function () awful.screen.focused().mypromptbox:run() end,
+    --           {description = "run prompt", group = "launcher"}),
 
     awful.key({ modkey }, "x",
               function ()
@@ -693,9 +703,17 @@ awful.rules.rules = {
       properties = { titlebars_enabled = true } },
 
     -- Set Firefox to always map on the first tag on screen 1.
-    { rule = { class = "Firefox" },
-      properties = { screen = 1, tag = awful.util.tagnames[1] } },
-
+    { rule = { class = "firefox" },
+      properties = { tag = awful.util.tagnames[2] } },
+    { rule = { class = "kitty", instance = "popup"},
+        properties = { 
+            placement = awful.placement.top+awful.placement.center_horizontal,
+            above = true,
+			sticky = true,
+			skip_taskbar = true,
+            floating = true,
+            titlebars_enabled = false
+        }},
     { rule = { class = "Gimp", role = "gimp-image-window" },
           properties = { maximized = true } },
 }
