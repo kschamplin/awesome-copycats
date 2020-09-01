@@ -261,7 +261,29 @@ globalkeys = my_table.join(
             awful.spawn(popup_program("exec setsid $(compgen -c | fzf)"))
         end,
         {description = "run prompt", group = "launcher"}),
-
+    
+    awful.key({ modkey }, "space", function ()
+            -- get a list of all windows.
+            local wins = ""
+            for _, c in ipairs(client.get()) do
+                -- add client id + name
+                wins = wins .. c.window .. " " .. c.name .. "\n"
+            end
+            -- create fzf process that takes 
+            awful.spawn.easy_async(popup_program("echo '" .. wins .. "' | fzf --with-nth=2.. > /run/user/1000/chosen-window.txt"), function ()
+                awful.spawn.easy_async("cat /run/user/1000/chosen-window.txt", function (stdout)
+                    local win_id = stdout:match("^([^ ]+)") -- get the first field (whitespace delimiting)
+                    naughty.notify({text = win_id})
+                    for _, c in ipairs(client.get()) do
+                        if c.window == tonumber(win_id) then
+                            client.focus = c
+                            c:raise()
+                            break
+                        end
+                    end
+                end)
+            end)
+        end, { description = "switch window", group = "launcher"}),
     -- Take a screenshot
     -- https://github.com/lcpz/dots/blob/master/bin/screenshot
     awful.key({ altkey }, "p", function() os.execute("screenshot") end,
