@@ -11,13 +11,13 @@ local awful = require("awful")
 local wibox = require("wibox")
 local dpi   = require("beautiful.xresources").apply_dpi
 
-local os = os
+-- local os = os
 local my_table = awful.util.table or gears.table -- 4.{0,1} compatibility
 
 local theme                                     = {}
 theme.dir                                       = os.getenv("HOME") .. "/.config/awesome/themes/insanity"
 theme.wallpaper                                 = theme.dir .. "/wall.jpg"
-theme.font                                      = "monospace 9"
+theme.font                                      = "monospace 11"
 theme.fg_normal                                 = "#DDDDFF"
 theme.fg_focus                                  = "#EA6F81"
 theme.fg_urgent                                 = "#CC9393"
@@ -49,10 +49,17 @@ theme.layout_max                                = theme.dir .. "/icons/max.png"
 theme.layout_fullscreen                         = theme.dir .. "/icons/fullscreen.png"
 theme.layout_magnifier                          = theme.dir .. "/icons/magnifier.png"
 theme.layout_floating                           = theme.dir .. "/icons/floating.png"
-theme.widget_ac                                 = theme.dir .. "/icons/ac.png"
-theme.widget_battery                            = theme.dir .. "/icons/battery.png"
-theme.widget_battery_low                        = theme.dir .. "/icons/battery_low.png"
-theme.widget_battery_empty                      = theme.dir .. "/icons/battery_empty.png"
+theme.widget_ac                                 = ""
+theme.widget_battery                            = ""
+theme.widget_battery_90                         = ""
+theme.widget_battery_80                         = ""
+theme.widget_battery_70                         = ""
+theme.widget_battery_60                         = ""
+theme.widget_battery_50                         = ""
+theme.widget_battery_40                         = ""
+theme.widget_battery_30                         = ""
+theme.widget_battery_20                         = ""
+theme.widget_battery_empty                      = ""
 theme.widget_mem                                = theme.dir .. "/icons/mem.png"
 theme.widget_cpu                                = theme.dir .. "/icons/cpu.png"
 theme.widget_temp                               = theme.dir .. "/icons/temp.png"
@@ -201,27 +208,59 @@ theme.fs = lain.widget.fs({
 })
 
 -- Battery
-local baticon = wibox.widget.imagebox(theme.widget_battery)
+local baticon = wibox.widget.textbox("")
 local bat = lain.widget.bat({
     settings = function()
         if bat_now.status and bat_now.status ~= "N/A" then
             if bat_now.ac_status == 1 then
-                baticon:set_image(theme.widget_ac)
-            elseif not bat_now.perc and tonumber(bat_now.perc) <= 5 then
-                baticon:set_image(theme.widget_battery_empty)
-            elseif not bat_now.perc and tonumber(bat_now.perc) <= 15 then
-                baticon:set_image(theme.widget_battery_low)
-            else
-                baticon:set_image(theme.widget_battery)
+                baticon:set_text(theme.widget_ac)
+            elseif not bat_now.perc and tonumber(bat_now.perc) <= 10 then
+                baticon:set_text(theme.widget_battery_empty)
+            elseif not bat_now.perc and tonumber(bat_now.perc) <= 20 then
+                baticon:set_text(theme.widget_battery_20)
+            elseif not bat_now.perc and tonumber(bat_now.perc) <= 30 then
+                baticon:set_text(theme.widget_battery_30)
+            elseif not bat_now.perc and tonumber(bat_now.perc) <= 40 then
+                baticon:set_text(theme.widget_battery_40)
+            elseif not bat_now.perc and tonumber(bat_now.perc) <= 50 then
+                baticon:set_text(theme.widget_battery_50)
+            elseif not bat_now.perc and tonumber(bat_now.perc) <= 60 then
+                baticon:set_text(theme.widget_battery_60)
+            elseif not bat_now.perc and tonumber(bat_now.perc) <= 70 then
+                baticon:set_text(theme.widget_battery_70)
+            elseif not bat_now.perc and tonumber(bat_now.perc) <= 80 then
+                baticon:set_text(theme.widget_battery_80)
+            elseif not bat_now.perc and tonumber(bat_now.perc) <= 90 then
+                baticon:set_text(theme.widget_battery_90)
+            elseif not bat_now.perc and tonumber(bat_now.perc) <= 95 then
+                baticon:set_text(theme.widget_battery)
             end
             widget:set_markup(markup.font(theme.font, " " .. bat_now.perc .. "% "))
         else
             widget:set_markup(markup.font(theme.font, " AC "))
-            baticon:set_image(theme.widget_ac)
+            baticon:set_text(theme.widget_ac)
         end
     end
 })
-
+-- local bat = lain.widget.bat({
+--     settings = function()
+--         if bat_now.status and bat_now.status ~= "N/A" then
+--             if bat_now.ac_status == 1 then
+--                 baticon:set_image(theme.widget_ac)
+--             elseif not bat_now.perc and tonumber(bat_now.perc) <= 5 then
+--                 baticon:set_image(theme.widget_battery_empty)
+--             elseif not bat_now.perc and tonumber(bat_now.perc) <= 15 then
+--                 baticon:set_image(theme.widget_battery_low)
+--             else
+--                 baticon:set_image(theme.widget_battery)
+--             end
+--             widget:set_markup(markup.font(theme.font, " " .. bat_now.perc .. "% "))
+--         else
+--             widget:set_markup(markup.font(theme.font, " AC "))
+--             baticon:set_image(theme.widget_ac)
+--         end
+--     end
+-- })
 -- ALSA volume
 local volicon = wibox.widget.imagebox(theme.widget_vol)
 theme.volume = lain.widget.alsa({
@@ -319,7 +358,7 @@ function theme.at_screen_connect(s)
             wibox.container.background(mpdicon, theme.bg_focus),
             wibox.container.background(theme.mpd.widget, theme.bg_focus),
             arrl_dl,
-            volicon,
+            -- volicon,
             theme.volume.widget,
             arrl_ld,
             wibox.container.background(mailicon, theme.bg_focus),
