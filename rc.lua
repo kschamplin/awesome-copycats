@@ -74,7 +74,7 @@ awful.spawn.with_shell(
 
 -- {{{ Variable definitions
 
-local chosen_theme = "insanity"
+local theme_name = "insanity"
 local modkey       = "Mod4"
 local altkey       = "Mod1"
 local terminal     = "kitty"
@@ -85,6 +85,13 @@ local gui_editor   = os.getenv("GUI_EDITOR") or "gvim"
 local browser      = os.getenv("BROWSER") or "firefox"
 local scrlocker    = "slock"
 
+
+
+-- This is the *ONE* io.popen we are allowed to use.
+-- It allows us to avoid race conditions or having to wait async for us to get the hostname.
+local hostname = io.popen("uname -n"):read()
+-- TODO: move host-only logic to functions then call async?
+
 local function popup_program(cmd)
     return terminal .. "\
         -o remember_window_size=no \
@@ -93,9 +100,10 @@ local function popup_program(cmd)
         " --name popup  zsh -c \"source $HOME/.zshrc && " .. cmd .. "\""
 end
 
-
 awful.util.terminal = terminal
 awful.util.tagnames = { "", "", "Code", "Chat", "5" }
+
+
 awful.layout.layouts = {
     awful.layout.suit.spiral,
     -- awful.layout.suit.floating,
@@ -108,17 +116,11 @@ awful.layout.layouts = {
     --awful.layout.suit.spiral.dwindle,
     --awful.layout.suit.max,
     --awful.layout.suit.max.fullscreen,
-    --awful.layout.suit.magnifier,
+    awful.layout.suit.magnifier,
     --awful.layout.suit.corner.nw,
     --awful.layout.suit.corner.ne,
     --awful.layout.suit.corner.sw,
     --awful.layout.suit.corner.se,
-    --lain.layout.cascade,
-    --lain.layout.cascade.tile,
-    --lain.layout.centerwork,
-    --lain.layout.centerwork.horizontal,
-    --lain.layout.termfair,
-    --lain.layout.termfair.center,
 }
 
 awful.util.taglist_buttons = gears.table.join(
@@ -174,17 +176,9 @@ awful.util.tasklist_buttons = gears.table.join(
     awful.button({ }, 5, function () awful.client.focus.byidx(-1) end)
 )
 
-lain.layout.termfair.nmaster           = 3
-lain.layout.termfair.ncol              = 1
-lain.layout.termfair.center.nmaster    = 3
-lain.layout.termfair.center.ncol       = 1
-lain.layout.cascade.tile.offset_x      = dpi(2)
-lain.layout.cascade.tile.offset_y      = dpi(32)
-lain.layout.cascade.tile.extra_padding = dpi(5)
-lain.layout.cascade.tile.nmaster       = 5
-lain.layout.cascade.tile.ncol          = 2
 
-beautiful.init(string.format("%s/.config/awesome/themes/%s/theme.lua", os.getenv("HOME"), chosen_theme))
+
+beautiful.init(string.format("%s/.config/awesome/themes/%s/theme.lua", os.getenv("HOME"), theme_name))
 -- }}}
 
 -- {{{ Menu
@@ -208,10 +202,8 @@ awful.util.mymainmenu = freedesktop.menu.build({
     }
 })
 
-
-
 -- hide menu when mouse leaves it
---awful.util.mymainmenu.wibox:connect_signal("mouse::leave", function() awful.util.mymainmenu:hide() end)
+awful.util.mymainmenu.wibox:connect_signal("mouse::leave", function() awful.util.mymainmenu:hide() end)
 
 --menubar.utils.terminal = terminal -- Set the Menubar terminal for applications that require it
 -- }}}
@@ -261,35 +253,26 @@ globalkeys = gears.table.join(
             awful.spawn(popup_program("exec setsid $(echo -n \"$PATH\" | xargs -d: -I{} -r -- find -L {} -maxdepth 1 -mindepth 1 -type f -executable -printf '%P\n' 2>/dev/null | fzf)"))
         end,
         {description = "run prompt", group = "launcher"}),
-    
+
     awful.key({ modkey }, "space", function ()
             -- get a list of all windows.
+            local client_table = {}
             local wins = ""
-            for _, c in ipairs(client.get()) do
-                -- add client id + name
-                wins = wins .. c.window .. " " .. c.name .. "\n"
+            local winrules = function (c)
+                return true --awful.rules.match(c, {})
             end
+            for c in awful.client.iterate(winrules) do
+                client_table[#client_table + 1] = c
+                -- add client id + name
+                wins = wins .. #client_table .. " "  .. c.name .. "\n"
+            end
+            wins = wins:sub(1,-2)
             -- create fzf process that takes the windows and outputs to tmp file
             awful.spawn.easy_async(popup_program("echo '" .. wins .. "' | fzf --with-nth=2.. > /run/user/1000/chosen-window.txt"), function ()
-                awful.spawn.easy_async("cat /run/user/1000/chosen-window.txt", function (stdout)
-                    local win_id = stdout:match("^([^ ]+)") -- get the first field (whitespace delimiting)
-                    for _, c in ipairs(client.get()) do
-                        if c.window == tonumber(win_id) then
-                            -- toggle mode - doesn't get rid of current windows.
-                            -- can clutter screen if not careful!
-                            if not c.first_tag.selected then
-                                awful.tag.viewtoggle(c.first_tag)
-                            end
-                            --[[
-                                -- more "rofi-like" method where we switch to tag.
-                                if not c.first_tag.selected then
-                                    c.first_tag:view_only()
-                                end
-                            --]]
-                            client.focus = c
-                            c:raise()
-                            break
-                        end
+                awful.spawn.easy_async("cat /run/user/1000/chosen-window.txt", function (stdout, stderr, reason, return_code)
+                    if return_code == 0 then
+                        local idx = stdout:match("^([^ ]+)") -- get the first field (whitespace delimiting)
+                        client_table[tonumber(idx)]:jump_to(true)
                     end
                 end)
             end)
@@ -298,7 +281,7 @@ globalkeys = gears.table.join(
     -- https://github.com/lcpz/dots/blob/master/bin/screenshot
     awful.key({ altkey }, "p", function() os.execute("screenshot") end,
               {description = "take a screenshot", group = "hotkeys"}),
-
+    awful.key({ }, "Print", function () end, {description = "take a screenshot", group = "hotkeys"}),
     -- X screen locker
     awful.key({ altkey, "Control" }, "l", function () os.execute(scrlocker) end,
               {description = "lock screen", group = "hotkeys"}),
@@ -315,9 +298,9 @@ globalkeys = gears.table.join(
               {description = "go back", group = "tag"}),
 
     -- Non-empty tag browsing
-    awful.key({ altkey }, "Left", function () lain.util.tag_view_nonempty(-1) end,
+    awful.key({ altkey }, "Left", function () awful.tag.viewnext(awful.screen.focused()) end,
               {description = "view  previous nonempty", group = "tag"}),
-    awful.key({ altkey }, "Right", function () lain.util.tag_view_nonempty(1) end,
+    awful.key({ altkey }, "Right", function () awful.tag.viewprev(awful.screen.focused()) end,
               {description = "view  previous nonempty", group = "tag"}),
 
     -- Default client focus
@@ -396,7 +379,7 @@ globalkeys = gears.table.join(
         end,
         {description = "go forth", group = "client"}),
 
-    -- Show/Hide Wibox
+    -- Show/Hide wibar
     awful.key({ modkey }, "b", function ()
             for s in screen do
                 s.mywibox.visible = not s.mywibox.visible
@@ -405,30 +388,31 @@ globalkeys = gears.table.join(
                 end
             end
         end,
-        {description = "toggle wibox", group = "awesome"}),
+        {description = "toggle wibar", group = "awesome"}),
 
     -- On the fly useless gaps change
-    awful.key({ altkey, "Control" }, "+", function () lain.util.useless_gaps_resize(1) end,
-              {description = "increment useless gaps", group = "tag"}),
-    awful.key({ altkey, "Control" }, "-", function () lain.util.useless_gaps_resize(-1) end,
-              {description = "decrement useless gaps", group = "tag"}),
-
-    -- Dynamic tagging
-    awful.key({ modkey, "Shift" }, "n", function () lain.util.add_tag() end,
-              {description = "add new tag", group = "tag"}),
-    awful.key({ modkey, "Shift" }, "r", function () lain.util.rename_tag() end,
-              {description = "rename tag", group = "tag"}),
-    awful.key({ modkey, "Shift" }, "Left", function () lain.util.move_tag(-1) end,
-              {description = "move tag to the left", group = "tag"}),
-    awful.key({ modkey, "Shift" }, "Right", function () lain.util.move_tag(1) end,
-              {description = "move tag to the right", group = "tag"}),
-    awful.key({ modkey, "Shift" }, "d", function () lain.util.delete_tag() end,
-              {description = "delete tag", group = "tag"}),
-
+    -- awful.key({ altkey, "Control" }, "+", function () lain.util.useless_gaps_resize(1) end,
+    --           {description = "increment useless gaps", group = "tag"}),
+    -- awful.key({ altkey, "Control" }, "-", function () lain.util.useless_gaps_resize(-1) end,
+    --           {description = "decrement useless gaps", group = "tag"}),
     -- Standard program
     awful.key({ modkey,           }, "Return", function () awful.spawn(terminal) end,
               {description = "open a terminal", group = "launcher"}),
-    awful.key({ modkey, "Control" }, "r", awesome.restart,
+    awful.key({ modkey, "Control" }, "r", function ()
+                    awful.spawn.easy_async("awesome -k", function (stdout, stderr)
+                        if stderr == "✔ Configuration file syntax OK.\n" then
+                            awesome.restart()
+                        else
+                            -- print awesome -k errors.
+                            naughty.notify({
+                                title = "Error with awesome config!",
+                                text = stderr,
+                                ignore_suspend = true,
+                                preset = naughty.config.presets.critical
+                            })
+                        end
+                    end)
+                end,
               {description = "reload awesome", group = "awesome"}),
     awful.key({ modkey, "Shift"   }, "q", awesome.quit,
               {description = "quit awesome", group = "awesome"}),
@@ -470,8 +454,6 @@ globalkeys = gears.table.join(
               {description = "show calendar", group = "widgets"}),
     awful.key({ altkey, }, "h", function () if beautiful.fs then beautiful.fs.show(7) end end,
               {description = "show filesystem", group = "widgets"}),
-    awful.key({ altkey, }, "w", function () if beautiful.weather then beautiful.weather.show(7) end end,
-              {description = "show weather", group = "widgets"}),
 
     -- Brightness
     awful.key({ }, "XF86MonBrightnessUp", function () os.execute("xbacklight -inc 10") end,
@@ -567,10 +549,9 @@ globalkeys = gears.table.join(
               {description = "run gui editor", group = "launcher"}),
 
     -- Default
-    --[[ Menubar
     awful.key({ modkey }, "p", function() menubar.show() end,
-              {description = "show the menubar", group = "launcher"})
-    --]]
+              {description = "show the menubar", group = "launcher"}),
+    
     --[[ dmenu
     awful.key({ modkey }, "x", function ()
             os.execute(string.format("dmenu_run -i -fn 'Monospace' -nb '%s' -nf '%s' -sb '%s' -sf '%s'",
@@ -597,7 +578,7 @@ globalkeys = gears.table.join(
                     prompt       = "Run Lua code: ",
                     textbox      = awful.screen.focused().mypromptbox.widget,
                     exe_callback = awful.util.eval,
-                    history_path = awful.util.get_cache_dir() .. "/history_eval"
+                    history_path = gears.filesystem.get_cache_dir() .. "/history_eval"
                   }
               end,
               {description = "lua execute prompt", group = "awesome"})
@@ -605,8 +586,8 @@ globalkeys = gears.table.join(
 )
 
 clientkeys = gears.table.join(
-    awful.key({ altkey, "Shift"   }, "m",      lain.util.magnify_client,
-              {description = "magnify client", group = "client"}),
+    -- awful.key({ altkey, "Shift"   }, "m",      lain.util.magnify_client,
+    --           {description = "magnify client", group = "client"}),
     awful.key({ modkey,           }, "f",
         function (c)
             c.fullscreen = not c.fullscreen
