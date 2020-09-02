@@ -208,6 +208,7 @@ theme.fs = lain.widget.fs({
 })
 
 -- Battery
+-- TODO: broken (always uses AC icon?)
 local baticon = wibox.widget.textbox("")
 local bat = lain.widget.bat({
     settings = function()
@@ -242,26 +243,10 @@ local bat = lain.widget.bat({
         end
     end
 })
--- local bat = lain.widget.bat({
---     settings = function()
---         if bat_now.status and bat_now.status ~= "N/A" then
---             if bat_now.ac_status == 1 then
---                 baticon:set_image(theme.widget_ac)
---             elseif not bat_now.perc and tonumber(bat_now.perc) <= 5 then
---                 baticon:set_image(theme.widget_battery_empty)
---             elseif not bat_now.perc and tonumber(bat_now.perc) <= 15 then
---                 baticon:set_image(theme.widget_battery_low)
---             else
---                 baticon:set_image(theme.widget_battery)
---             end
---             widget:set_markup(markup.font(theme.font, " " .. bat_now.perc .. "% "))
---         else
---             widget:set_markup(markup.font(theme.font, " AC "))
---             baticon:set_image(theme.widget_ac)
---         end
---     end
--- })
+
+
 -- ALSA volume
+-- TODO: switch to pulseview
 local volicon = wibox.widget.imagebox(theme.widget_vol)
 theme.volume = lain.widget.alsa({
     settings = function()
