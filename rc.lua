@@ -1,7 +1,6 @@
 --[[
 
-     Awesome WM configuration template
-     github.com/lcpz
+    Awesome config (based on awesome-copycats)
 
 --]]
 
@@ -296,12 +295,6 @@ globalkeys = gears.table.join(
               {description = "view next", group = "tag"}),
     awful.key({ modkey,           }, "Escape", awful.tag.history.restore,
               {description = "go back", group = "tag"}),
-
-    -- Non-empty tag browsing
-    awful.key({ altkey }, "Left", function () awful.tag.viewnext(awful.screen.focused()) end,
-              {description = "view  previous nonempty", group = "tag"}),
-    awful.key({ altkey }, "Right", function () awful.tag.viewprev(awful.screen.focused()) end,
-              {description = "view  previous nonempty", group = "tag"}),
 
     -- Default client focus
     awful.key({ altkey,           }, "j",
