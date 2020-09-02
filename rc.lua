@@ -20,7 +20,7 @@ local lain          = require("lain")
 local freedesktop   = require("freedesktop")
 local hotkeys_popup = require("awful.hotkeys_popup").widget
 --                      require("awful.hotkeys_popup.keys")
-local my_table      = awful.util.table or gears.table -- cd go4.{0,1} compatibility
+-- local gears.table      = awful.util.table or gears.table -- cd go4.{0,1} compatibility
 local dpi           = require("beautiful.xresources").apply_dpi
 -- local remote = require("awful.remote")
 -- }}}
@@ -98,7 +98,7 @@ awful.util.terminal = terminal
 awful.util.tagnames = { "", "", "Code", "Chat", "5" }
 awful.layout.layouts = {
     awful.layout.suit.spiral,
-    awful.layout.suit.floating,
+    -- awful.layout.suit.floating,
     awful.layout.suit.tile,
     awful.layout.suit.tile.left,
     awful.layout.suit.tile.bottom,
@@ -121,7 +121,7 @@ awful.layout.layouts = {
     --lain.layout.termfair.center,
 }
 
-awful.util.taglist_buttons = my_table.join(
+awful.util.taglist_buttons = gears.table.join(
     awful.button({ }, 1, function(t) t:view_only() end),
     awful.button({ modkey }, 1, function(t)
         if client.focus then
@@ -138,7 +138,7 @@ awful.util.taglist_buttons = my_table.join(
     awful.button({ }, 5, function(t) awful.tag.viewprev(t.screen) end)
 )
 
-awful.util.tasklist_buttons = my_table.join(
+awful.util.tasklist_buttons = gears.table.join(
     awful.button({ }, 1, function (c)
         if c == client.focus then
             c.minimized = true
@@ -246,7 +246,7 @@ awful.screen.connect_for_each_screen(function(s) beautiful.at_screen_connect(s) 
 -- }}}
 
 -- {{{ Mouse bindings
-root.buttons(my_table.join(
+root.buttons(gears.table.join(
     awful.button({ }, 3, function () awful.util.mymainmenu:toggle() end),
     awful.button({ }, 4, awful.tag.viewnext),
     awful.button({ }, 5, awful.tag.viewprev)
@@ -254,11 +254,11 @@ root.buttons(my_table.join(
 -- }}}
 
 -- {{{ Key bindings
-globalkeys = my_table.join(
+globalkeys = gears.table.join(
     -- list programs via fzf and run them.
     awful.key({ modkey }, "r", function ()
             -- awful.spawn(popup_program("awesome-client \\\"local awful = require('awful') ; awful.spawn('$(compgen -c | fzf)')\\\""))
-            awful.spawn(popup_program("exec setsid $(compgen -c | fzf)"))
+            awful.spawn(popup_program("exec setsid $(echo -n \"$PATH\" | xargs -d: -I{} -r -- find -L {} -maxdepth 1 -mindepth 1 -type f -executable -printf '%P\n' 2>/dev/null | fzf)"))
         end,
         {description = "run prompt", group = "launcher"}),
     
@@ -269,13 +269,23 @@ globalkeys = my_table.join(
                 -- add client id + name
                 wins = wins .. c.window .. " " .. c.name .. "\n"
             end
-            -- create fzf process that takes 
+            -- create fzf process that takes the windows and outputs to tmp file
             awful.spawn.easy_async(popup_program("echo '" .. wins .. "' | fzf --with-nth=2.. > /run/user/1000/chosen-window.txt"), function ()
                 awful.spawn.easy_async("cat /run/user/1000/chosen-window.txt", function (stdout)
                     local win_id = stdout:match("^([^ ]+)") -- get the first field (whitespace delimiting)
-                    naughty.notify({text = win_id})
                     for _, c in ipairs(client.get()) do
                         if c.window == tonumber(win_id) then
+                            -- toggle mode - doesn't get rid of current windows.
+                            -- can clutter screen if not careful!
+                            if not c.first_tag.selected then
+                                awful.tag.viewtoggle(c.first_tag)
+                            end
+                            --[[
+                                -- more "rofi-like" method where we switch to tag.
+                                if not c.first_tag.selected then
+                                    c.first_tag:view_only()
+                                end
+                            --]]
                             client.focus = c
                             c:raise()
                             break
@@ -435,10 +445,10 @@ globalkeys = my_table.join(
               {description = "increase the number of columns", group = "layout"}),
     awful.key({ modkey, "Control" }, "l",     function () awful.tag.incncol(-1, nil, true)    end,
               {description = "decrease the number of columns", group = "layout"}),
-    awful.key({ modkey,           }, "space", function () awful.layout.inc( 1)                end,
-              {description = "select next", group = "layout"}),
-    awful.key({ modkey, "Shift"   }, "space", function () awful.layout.inc(-1)                end,
-              {description = "select previous", group = "layout"}),
+    -- awful.key({ modkey,           }, "space", function () awful.layout.inc( 1)                end,
+    --           {description = "select next", group = "layout"}),
+    -- awful.key({ modkey, "Shift"   }, "space", function () awful.layout.inc(-1)                end,
+    --           {description = "select previous", group = "layout"}),
 
     awful.key({ modkey, "Control" }, "n",
               function ()
@@ -594,7 +604,7 @@ globalkeys = my_table.join(
     --]]
 )
 
-clientkeys = my_table.join(
+clientkeys = gears.table.join(
     awful.key({ altkey, "Shift"   }, "m",      lain.util.magnify_client,
               {description = "magnify client", group = "client"}),
     awful.key({ modkey,           }, "f",
@@ -640,7 +650,7 @@ for i = 1, 9 do
         descr_move = {description = "move focused client to tag #", group = "tag"}
         descr_toggle_focus = {description = "toggle focused client on tag #", group = "tag"}
     end
-    globalkeys = my_table.join(globalkeys,
+    globalkeys = gears.table.join(globalkeys,
         -- View tag only.
         awful.key({ modkey }, "#" .. i + 9,
                   function ()
@@ -727,7 +737,7 @@ awful.rules.rules = {
 
     -- Set Firefox to always map on the first tag on screen 1.
     { rule = { class = "firefox" },
-      properties = { tag = awful.util.tagnames[2] } },
+      properties = { floating = false, tag = awful.util.tagnames[2] } },
     { rule = { class = "kitty", instance = "popup"},
         properties = {
             placement = awful.placement.top+awful.placement.center_horizontal,
@@ -772,7 +782,7 @@ client.connect_signal("request::titlebars", function(c)
 
     -- Default
     -- buttons for the titlebar
-    local buttons = my_table.join(
+    local buttons = gears.table.join(
         awful.button({ }, 1, function()
             c:emit_signal("request::activate", "titlebar", {raise = true})
             awful.mouse.client.move(c)
