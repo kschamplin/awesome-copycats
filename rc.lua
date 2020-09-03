@@ -456,15 +456,15 @@ globalkeys = gears.table.join(
 
 
     -- Pulse volume ctrl
-    awful.key({ }, "XF86AudioRaiseVolume", function () awful.spawn("pactl set-sink-volume 0 +1%%") end,
+    awful.key({ }, "XF86AudioRaiseVolume", function () awful.spawn("pactl set-sink-volume @DEFAULT_SINK@ +1%%") end,
         {description = "volume up", group = "hotkeys"}
     ),
-    awful.key({ }, "XF86AudioRaiseVolume", function () awful.spawn("pactl set-sink-volume 0 -1%%") end,
+    awful.key({ }, "XF86AudioRaiseVolume", function () awful.spawn("pactl set-sink-volume @DEFAULT_SINK@ -1%%") end,
         {description = "volume down", group="hotkeys"}),
-    awful.key({ }, "XF86AudioMute", function () awful.spawn("pactl set-sink-mute 0 toggle") end,
+    awful.key({ }, "XF86AudioMute", function () awful.spawn("pactl set-sink-mute @DEFAULT_SINK@ toggle") end,
         {description = "toggle mute", group = "hotkeys"}
     ),
-    awful.key({ }, "XF86AudioMicMute", function () awful.spawn("pactl set-source-mute 0 toggle") end,
+    awful.key({ }, "XF86AudioMicMute", function () awful.spawn("pactl set-source-mute @DEFAULT_SOURCE@ toggle") end,
         {description = "toggle mic mute", group = "hotkeys"}
     ),
     -- MPD control
