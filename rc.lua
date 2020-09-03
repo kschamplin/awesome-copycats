@@ -449,46 +449,24 @@ globalkeys = gears.table.join(
               {description = "show filesystem", group = "widgets"}),
 
     -- Brightness
-    awful.key({ }, "XF86MonBrightnessUp", function () os.execute("xbacklight -inc 10") end,
-              {description = "+10%", group = "hotkeys"}),
-    awful.key({ }, "XF86MonBrightnessDown", function () os.execute("xbacklight -dec 10") end,
-              {description = "-10%", group = "hotkeys"}),
+    awful.key({ }, "XF86MonBrightnessUp", function () awful.spawn("xbacklight -inc 5") end,
+              {description = "+5%", group = "hotkeys"}),
+    awful.key({ }, "XF86MonBrightnessDown", function () awful.spawn("xbacklight -dec 5") end,
+              {description = "-5%", group = "hotkeys"}),
 
 
     -- Pulse volume ctrl
-    -- awful.key({ }, "XF86AudioRaiseVolume", function () os.execute("pactl set-sink-volume 0 +1%%")),
-    -- ALSA volume control
-    awful.key({ altkey }, "Up",
-        function ()
-            os.execute(string.format("amixer -q set %s 1%%+", beautiful.volume.channel))
-            beautiful.volume.update()
-        end,
-        {description = "volume up", group = "hotkeys"}),
-    awful.key({ altkey }, "Down",
-        function ()
-            os.execute(string.format("amixer -q set %s 1%%-", beautiful.volume.channel))
-            beautiful.volume.update()
-        end,
-        {description = "volume down", group = "hotkeys"}),
-    awful.key({ altkey }, "m",
-        function ()
-            os.execute(string.format("amixer -q set %s toggle", beautiful.volume.togglechannel or beautiful.volume.channel))
-            beautiful.volume.update()
-        end,
-        {description = "toggle mute", group = "hotkeys"}),
-    awful.key({ altkey, "Control" }, "m",
-        function ()
-            os.execute(string.format("amixer -q set %s 100%%", beautiful.volume.channel))
-            beautiful.volume.update()
-        end,
-        {description = "volume 100%", group = "hotkeys"}),
-    awful.key({ altkey, "Control" }, "0",
-        function ()
-            os.execute(string.format("amixer -q set %s 0%%", beautiful.volume.channel))
-            beautiful.volume.update()
-        end,
-        {description = "volume 0%", group = "hotkeys"}),
-
+    awful.key({ }, "XF86AudioRaiseVolume", function () awful.spawn("pactl set-sink-volume 0 +1%%") end,
+        {description = "volume up", group = "hotkeys"}
+    ),
+    awful.key({ }, "XF86AudioRaiseVolume", function () awful.spawn("pactl set-sink-volume 0 -1%%") end,
+        {description = "volume down", group="hotkeys"}),
+    awful.key({ }, "XF86AudioMute", function () awful.spawn("pactl set-sink-mute 0 toggle") end,
+        {description = "toggle mute", group = "hotkeys"}
+    ),
+    awful.key({ }, "XF86AudioMicMute", function () awful.spawn("pactl set-source-mute 0 toggle") end,
+        {description = "toggle mic mute", group = "hotkeys"}
+    ),
     -- MPD control
     awful.key({ altkey, "Control" }, "Up",
         function ()
