@@ -88,7 +88,7 @@ local scrlocker    = "slock"
 
 -- This is the *ONE* io.popen we are allowed to use.
 -- It allows us to avoid race conditions or having to wait async for us to get the hostname.
-local hostname = io.popen("uname -n"):read()
+hostname = io.popen("uname -n"):read()
 -- TODO: move host-only logic to functions then call async?
 
 local function popup_program(cmd)

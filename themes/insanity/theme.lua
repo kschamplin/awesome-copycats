@@ -243,7 +243,10 @@ local bat = lain.widget.bat({
         end
     end
 })
-
+-- if hostname == "ithaca" then
+--     baticon = nil
+--     bat = nil
+-- end
 
 -- ALSA volume
 -- TODO: switch to pulseview
@@ -289,7 +292,49 @@ local net = lain.widget.net({
 local spr     = wibox.widget.textbox(' ')
 local arrl_dl = separators.arrow_left(theme.bg_focus, "alpha")
 local arrl_ld = separators.arrow_left("alpha", theme.bg_focus)
-
+local function get_right_bar(s)
+    startoftable = { -- Right widgets
+        layout = wibox.layout.fixed.horizontal,
+        wibox.widget.systray(),
+        spr,
+        arrl_ld,
+        wibox.container.background(mpdicon, theme.bg_focus),
+        wibox.container.background(theme.mpd.widget, theme.bg_focus),
+        arrl_dl,
+        -- volicon,
+        theme.volume.widget,
+        arrl_ld,
+        wibox.container.background(mailicon, theme.bg_focus),
+        --wibox.container.background(theme.mail.widget, theme.bg_focus),
+        arrl_dl,
+        memicon,
+        mem.widget,
+        arrl_ld,
+        wibox.container.background(cpuicon, theme.bg_focus),
+        wibox.container.background(cpu.widget, theme.bg_focus),
+        arrl_dl,
+        tempicon,
+        temp.widget,
+        arrl_ld,
+        wibox.container.background(fsicon, theme.bg_focus),
+        --wibox.container.background(theme.fs.widget, theme.bg_focus),
+        arrl_dl
+    }
+    endtable = {wibox.container.background(neticon, theme.bg_focus),
+        wibox.container.background(net.widget, theme.bg_focus),
+        arrl_dl,
+        clock,
+        spr,
+        arrl_ld,
+        wibox.container.background(s.mylayoutbox, theme.bg_focus)
+    }
+    if hostname == "saji-x1" then
+        return gears.table.join(startoftable, {arrl_dl, baticon, bat.widget, arrl_ld}, endtable)
+    else
+        return gears.table.join(startoftable, endtable)
+    end
+    
+end
 function theme.at_screen_connect(s)
     -- Quake application
     s.quake = lain.util.quake({ app = awful.util.terminal })
@@ -335,43 +380,7 @@ function theme.at_screen_connect(s)
             spr,
         },
         s.mytasklist, -- Middle widget
-        { -- Right widgets
-            layout = wibox.layout.fixed.horizontal,
-            wibox.widget.systray(),
-            spr,
-            arrl_ld,
-            wibox.container.background(mpdicon, theme.bg_focus),
-            wibox.container.background(theme.mpd.widget, theme.bg_focus),
-            arrl_dl,
-            -- volicon,
-            theme.volume.widget,
-            arrl_ld,
-            wibox.container.background(mailicon, theme.bg_focus),
-            --wibox.container.background(theme.mail.widget, theme.bg_focus),
-            arrl_dl,
-            memicon,
-            mem.widget,
-            arrl_ld,
-            wibox.container.background(cpuicon, theme.bg_focus),
-            wibox.container.background(cpu.widget, theme.bg_focus),
-            arrl_dl,
-            tempicon,
-            temp.widget,
-            arrl_ld,
-            wibox.container.background(fsicon, theme.bg_focus),
-            --wibox.container.background(theme.fs.widget, theme.bg_focus),
-            arrl_dl,
-            baticon,
-            bat.widget,
-            arrl_ld,
-            wibox.container.background(neticon, theme.bg_focus),
-            wibox.container.background(net.widget, theme.bg_focus),
-            arrl_dl,
-            clock,
-            spr,
-            arrl_ld,
-            wibox.container.background(s.mylayoutbox, theme.bg_focus),
-        },
+        get_right_bar(s),
     }
 end
 
