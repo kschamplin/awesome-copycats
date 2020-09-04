@@ -4,13 +4,15 @@
      github.com/lcpz
 
 --]]
+local awesome, client, mouse, screen, tag = awesome, client, mouse, screen, tag
+local ipairs, string, os, table, tostring, tonumber, type = ipairs, string, os, table, tostring, tonumber, type
 
 local gears = require("gears")
 local lain  = require("lain")
 local awful = require("awful")
 local wibox = require("wibox")
 local dpi   = require("beautiful.xresources").apply_dpi
-
+local vars = require ("variables")
 -- local os = os
 -- local gears.table = awful.util.table or gears.table -- 4.{0,1} compatibility
 
@@ -117,32 +119,11 @@ theme.cal = lain.widget.cal({
     }
 })
 
--- Mail IMAP check
-local mailicon = wibox.widget.imagebox(theme.widget_mail)
---[[ commented because it needs to be set before use
-mailicon:buttons(gears.table.join(awful.button({ }, 1, function () awful.spawn(mail) end)))
-theme.mail = lain.widget.imap({
-    timeout  = 180,
-    server   = "server",
-    mail     = "mail",
-    password = "keyring get mail",
-    settings = function()
-        if mailcount > 0 then
-            widget:set_markup(markup.font(theme.font, " " .. mailcount .. " "))
-            mailicon:set_image(theme.widget_mail_on)
-        else
-            widget:set_text("")
-            mailicon:set_image(theme.widget_mail)
-        end
-    end
-})
---]]
-
 -- MPD
-local musicplr = awful.util.terminal .. " -title Music -g 130x34-320+16 -e ncmpcpp"
+local musicplr = vars.terminal .. " -title Music -g 130x34-320+16 -e ncmpcpp"
 local mpdicon = wibox.widget.imagebox(theme.widget_music)
 mpdicon:buttons(gears.table.join(
-    awful.button({ modkey }, 1, function () awful.spawn.with_shell(musicplr) end),
+    awful.button({ vars.modkey }, 1, function () awful.spawn.with_shell(musicplr) end),
     awful.button({ }, 1, function ()
         os.execute("mpc prev")
         theme.mpd.update()
@@ -290,46 +271,34 @@ local net = lain.widget.net({
 
 -- Separators
 local spr     = wibox.widget.textbox(' ')
-local arrl_dl = separators.arrow_left(theme.bg_focus, "alpha")
-local arrl_ld = separators.arrow_left("alpha", theme.bg_focus)
 local function get_right_bar(s)
-    startoftable = { -- Right widgets
+    local startoftable = { -- Right widgets
         layout = wibox.layout.fixed.horizontal,
         wibox.widget.systray(),
-        spr,
-        arrl_ld,
         wibox.container.background(mpdicon, theme.bg_focus),
         wibox.container.background(theme.mpd.widget, theme.bg_focus),
-        arrl_dl,
         -- volicon,
         theme.volume.widget,
-        arrl_ld,
         wibox.container.background(mailicon, theme.bg_focus),
         --wibox.container.background(theme.mail.widget, theme.bg_focus),
-        arrl_dl,
         memicon,
         mem.widget,
-        arrl_ld,
         wibox.container.background(cpuicon, theme.bg_focus),
         wibox.container.background(cpu.widget, theme.bg_focus),
-        arrl_dl,
         tempicon,
         temp.widget,
-        arrl_ld,
         wibox.container.background(fsicon, theme.bg_focus),
-        --wibox.container.background(theme.fs.widget, theme.bg_focus),
-        arrl_dl
+        wibox.container.background(theme.fs.widget, theme.bg_focus),
     }
-    endtable = {wibox.container.background(neticon, theme.bg_focus),
+    local endtable = {
+        wibox.container.background(neticon, theme.bg_focus),
         wibox.container.background(net.widget, theme.bg_focus),
-        arrl_dl,
         clock,
-        spr,
-        arrl_ld,
+        wibox.widget.textbox(" > "),
         wibox.container.background(s.mylayoutbox, theme.bg_focus)
     }
-    if hostname == "saji-x1" then
-        return gears.table.join(startoftable, {arrl_dl, baticon, bat.widget, arrl_ld}, endtable)
+    if awesome.hostname == "saji-x1" then
+        return gears.table.join(startoftable, {spr, baticon, bat.widget},  endtable)
     else
         return gears.table.join(startoftable, endtable)
     end
@@ -337,7 +306,7 @@ local function get_right_bar(s)
 end
 function theme.at_screen_connect(s)
     -- Quake application
-    s.quake = lain.util.quake({ app = awful.util.terminal })
+    -- s.quake = lain.util.quake({ app = vars.terminal })
 
     -- If wallpaper is a function, call it with the screen
     local wallpaper = theme.wallpaper
@@ -347,7 +316,7 @@ function theme.at_screen_connect(s)
     gears.wallpaper.maximized(wallpaper, s, true)
 
     -- Tags
-    awful.tag(awful.util.tagnames, s, awful.layout.layouts)
+    awful.tag(vars.tagnames, s, awful.layout.layouts)
 
     -- Create a promptbox for each screen
     s.mypromptbox = awful.widget.prompt()
