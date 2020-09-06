@@ -34,4 +34,12 @@ helpers.restart = function ()
         end
     end)
 end
+helpers.first_line = function (path)
+    local file, first = io.open(path, "rb"), nil
+    if file then
+        first = file:read("*l")
+        file:close()
+    end
+    return first
+end
 return helpers

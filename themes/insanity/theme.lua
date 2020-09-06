@@ -171,22 +171,6 @@ local cpu = lain.widget.cpu({
     end
 })
 
--- Coretemp
-local tempicon = wibox.widget.imagebox(theme.widget_temp)
-local temp = lain.widget.temp({
-    settings = function()
-        widget:set_markup(markup.font(theme.font, " " .. coretemp_now .. "°C "))
-    end
-})
-
--- / fs
-local fsicon = wibox.widget.imagebox(theme.widget_hdd)
-theme.fs = lain.widget.fs({
-    notification_preset = { fg = theme.fg_normal, bg = theme.bg_normal, font = "monospace 10" },
-    settings = function()
-        widget:set_markup(markup.font(theme.font, " " .. fs_now["/"].percentage .. "% "))
-    end
-})
 
 -- Battery
 -- TODO: broken (always uses AC icon?)
@@ -194,7 +178,7 @@ local baticon = wibox.widget.textbox("")
 local bat = lain.widget.bat({
     settings = function()
         if bat_now.status and bat_now.status ~= "N/A" then
-            if bat_now.ac_status == 1 then
+            if false then
                 baticon:set_text(theme.widget_ac)
             elseif not bat_now.perc and tonumber(bat_now.perc) <= 10 then
                 baticon:set_text(theme.widget_battery_empty)
@@ -224,6 +208,9 @@ local bat = lain.widget.bat({
         end
     end
 })
+local battery_widget = {widget = wibox.widget.textbox()}
+
+
 -- if hostname == "ithaca" then
 --     baticon = nil
 --     bat = nil
@@ -279,22 +266,13 @@ local function get_right_bar(s)
         wibox.container.background(theme.mpd.widget, theme.bg_focus),
         -- volicon,
         theme.volume.widget,
-        wibox.container.background(mailicon, theme.bg_focus),
-        --wibox.container.background(theme.mail.widget, theme.bg_focus),
         memicon,
         mem.widget,
         wibox.container.background(cpuicon, theme.bg_focus),
         wibox.container.background(cpu.widget, theme.bg_focus),
-        tempicon,
-        temp.widget,
-        wibox.container.background(fsicon, theme.bg_focus),
-        wibox.container.background(theme.fs.widget, theme.bg_focus),
     }
     local endtable = {
-        wibox.container.background(neticon, theme.bg_focus),
-        wibox.container.background(net.widget, theme.bg_focus),
         clock,
-        wibox.widget.textbox(" > "),
         wibox.container.background(s.mylayoutbox, theme.bg_focus)
     }
     if awesome.hostname == "saji-x1" then

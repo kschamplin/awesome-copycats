@@ -162,7 +162,7 @@ keys.global = gears.table.join(
     ),
     awful.key({ }, "Print", function () end, {description = "take a screenshot", group = "hotkeys"}),
     -- X screen locker
-    awful.key({ vars.altkey, "Control" }, "l", function () os.execute(vars.scrlocker) end,
+    awful.key({ vars.altkey, "Control" }, "l", function () awful.spawn(vars.scrlocker) end,
               {description = "lock screen", group = "hotkeys"}),
 
     -- Hotkeys
@@ -306,7 +306,7 @@ keys.global = gears.table.join(
     awful.key({ }, "XF86AudioRaiseVolume", function () awful.spawn("pactl set-sink-volume @DEFAULT_SINK@ +1%") end,
         {description = "volume up", group = "hotkeys"}
     ),
-    awful.key({ }, "XF86AudioRaiseVolume", function () awful.spawn("pactl set-sink-volume @DEFAULT_SINK@ -1%") end,
+    awful.key({ }, "XF86AudioLowerVolume", function () awful.spawn("pactl set-sink-volume @DEFAULT_SINK@ -1%") end,
         {description = "volume down", group="hotkeys"}),
     awful.key({ }, "XF86AudioMute", function () awful.spawn("pactl set-sink-mute @DEFAULT_SINK@ toggle") end,
         {description = "toggle mute", group = "hotkeys"}

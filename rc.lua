@@ -52,7 +52,7 @@ end
 
 -- {{{ Autostart windowless processes
 
-rat.helpers.run_once({ "picom", "unclutter -root" }) -- entries must be separated by commas
+rat.helpers.run_once({ "picom", "unclutter -root" , "xss-lock -- " .. vars.scrlocker }) -- entries must be separated by commas
 
 -- }}}
 
