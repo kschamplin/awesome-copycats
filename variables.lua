@@ -8,6 +8,6 @@ vars.cycle_prev   = true -- cycle trough all previous client or just the first -
 vars.editor       = os.getenv("EDITOR") or "vim"
 vars.gui_editor   = os.getenv("GUI_EDITOR") or "gvim"
 vars.browser      = os.getenv("BROWSER") or "firefox"
-vars.scrlocker    = "i3lock --clock -B 1 --bar-indicator --timecolor=ffffffff --datecolor=ffffffff"
+vars.scrlocker    = "i3lock --clock --bar-indicator --timecolor=ffffffff --datecolor=ffffffff --image=/home/saji/.config/awesome/themes/insanity/wall.png"
 vars.tagnames = { "", "", "Code", "Chat", "5" }
 return vars

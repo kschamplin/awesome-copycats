@@ -56,8 +56,6 @@ rat.helpers.run_once({ "picom", "unclutter -root" , "xss-lock -- " .. vars.scrlo
 
 -- }}}
 
-awful.util.tagnames = { "", "", "Code", "Chat", "5" }
-
 awful.layout.layouts = {
     awful.layout.suit.spiral,
     -- awful.layout.suit.floating,
@@ -76,23 +74,6 @@ awful.layout.layouts = {
     --awful.layout.suit.corner.sw,
     --awful.layout.suit.corner.se,
 }
-
-awful.util.taglist_buttons = gears.table.join(
-    awful.button({ }, 1, function(t) t:view_only() end),
-    awful.button({ vars.modkey }, 1, function(t)
-        if client.focus then
-            client.focus:move_to_tag(t)
-        end
-    end),
-    awful.button({ }, 3, awful.tag.viewtoggle),
-    awful.button({ vars.modkey }, 3, function(t)
-        if client.focus then
-            client.focus:toggle_tag(t)
-        end
-    end),
-    awful.button({ }, 4, function(t) awful.tag.viewnext(t.screen) end),
-    awful.button({ }, 5, function(t) awful.tag.viewprev(t.screen) end)
-)
 
 awful.util.tasklist_buttons = gears.table.join(
     awful.button({ }, 1, function (c)
@@ -157,7 +138,7 @@ awful.util.mymainmenu = freedesktop.menu.build({
 })
 
 -- hide menu when mouse leaves it
-awful.util.mymainmenu.wibox:connect_signal("mouse::leave", function() awful.util.mymainmenu:hide() end)
+-- awful.util.mymainmenu.wibox:connect_signal("mouse::leave", function() awful.util.mymainmenu:hide() end)
 
 --menubar.utils.vars.terminal = vars.terminal -- Set the Menubar vars.terminal for applications that require it
 -- }}}
