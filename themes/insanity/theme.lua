@@ -270,7 +270,7 @@ local function get_right_bar(s)
         memicon,
         mem.widget,
         wibox.container.background(cpuicon, theme.bg_focus),
-        wibox.container.background(cpu.widget, theme.bg_focus),
+        wibox.container.background(cpu.widget, theme.bg_focus)
     }
     local endtable = {
         clock,
@@ -314,7 +314,7 @@ function theme.at_screen_connect(s)
     -- Create a tasklist widget
     s.mytasklist = awful.widget.tasklist(s, awful.widget.tasklist.filter.currenttags, keys.tasklist_buttons)
 
-    -- Create the wibox
+    -- Create the upper bar
     s.mywibox = awful.wibar({ position = "top", screen = s, height = dpi(18), bg = theme.bg_normal, fg = theme.fg_normal })
 
     -- Add widgets to the wibox
