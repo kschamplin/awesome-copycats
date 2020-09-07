@@ -296,9 +296,9 @@ keys.global = gears.table.join(
               {description = "show filesystem", group = "widgets"}),
 
     -- Brightness
-    awful.key({ }, "XF86MonBrightnessUp", function () awful.spawn("xbacklight -inc 5") end,
+    awful.key({ }, "XF86MonBrightnessUp", function () rat.widgets.brightness.inc(5) end,
               {description = "+5%", group = "hotkeys"}),
-    awful.key({ }, "XF86MonBrightnessDown", function () awful.spawn("xbacklight -dec 5") end,
+    awful.key({ }, "XF86MonBrightnessDown", function () rat.widgets.brightness.inc(-5) end,
               {description = "-5%", group = "hotkeys"}),
 
 

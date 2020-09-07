@@ -318,7 +318,11 @@ awful.rules.rules = {
     -- Set Firefox to always map on the first tag on screen 1.
     { rule = { class = "firefox" },
       properties = { floating = false, tag = vars.tagnames[2] } },
-    { rule = { class = "kitty", instance = "popup"},
+    { 
+        rule = {
+            class = "kitty",
+            instance = "popup"
+        },
         properties = {
             placement = awful.placement.top+awful.placement.center_horizontal,
             above = true,
@@ -331,7 +335,17 @@ awful.rules.rules = {
                     c:kill()
                 end)
             end
-        }},
+        }
+    },
+    {
+        rule = {
+            class = "kitty"
+        },
+        properties = {
+            titlebars_enabled = false,
+            border_width = 0
+        }
+    },
     { rule = { class = "Gimp", role = "gimp-image-window" },
           properties = { maximized = true } },
 }
