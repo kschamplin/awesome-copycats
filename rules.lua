@@ -23,7 +23,8 @@ awful.rules.rules = {
 
     -- Set Firefox to always map on the first tag on screen 1.
     { rule = { class = "firefox" },
-      properties = { floating = false, tag = vars.tagnames[2] } },
+      properties = { tag = vars.tagnames[2] } 
+    },
     { 
         rule = {
             class = "kitty",
