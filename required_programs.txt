@@ -1,0 +1,4 @@
+pamixer
+xsel
+fzf
+pgrep

@@ -5,6 +5,7 @@ local naughty = require("naughty")
 
 -- Brightness bar notification
 local brightness = {}
+local brightness_notification = nil
 
 local brightness_bar = wibox.widget {
 	color            = beautiful.fg_normal,
@@ -19,7 +20,7 @@ local brightness_bar = wibox.widget {
 
 brightness.notify = function()
 	local brightness_now
-	awful.spawn.easy_async_with_shell("xbacklight -get", function(cmd_out)
+	awful.spawn.easy_async("xbacklight -get", function(cmd_out)
 		local val = math.floor(tonumber(cmd_out))
 
 		if not val then return end
