@@ -9,6 +9,8 @@ local naughty = require("naughty")
 local volume = {}
 local volume_notification = nil
 
+
+-- this is the actual progress bar.
 local volume_bar = wibox.widget {
 	color            = beautiful.fg_normal,
 	background_color = beautiful.bg_normal,
@@ -19,7 +21,7 @@ local volume_bar = wibox.widget {
 	ticks            = false,
 	widget           = wibox.widget.progressbar
 }
-
+-- creates a notification and sets up the text and the progress bar
 local create_notification = function (text)
     volume_notification = naughty.notify({
         text = text,
@@ -42,8 +44,8 @@ local create_notification = function (text)
         }
     })
 end
-local prev_volume
-local prev_muted
+
+-- Spawns the notification. Called after changes/update.
 volume.notify = function ()
     awful.spawn.easy_async("pamixer --get-volume-human", function (stdout)
         local vol_now = tonumber(string.match(stdout, "%d+"))
