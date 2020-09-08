@@ -7,7 +7,7 @@ local naughty = require("naughty")
 local brightness = {}
 
 local brightness_bar = wibox.widget {
-	color            = beautiful.bg_focus,
+	color            = beautiful.fg_normal,
 	background_color = beautiful.bg_normal,
 	forced_width     = 200,
 	forced_height    = 25,
