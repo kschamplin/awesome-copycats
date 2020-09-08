@@ -4,7 +4,7 @@ local awesome = awesome
 local awful = require("awful")
 local naughty = require("naughty")
 
-local vars = require("variables")
+local vars = require("vars")
 local helpers = {}
 
 helpers.run_once = function (cmd_arr)
