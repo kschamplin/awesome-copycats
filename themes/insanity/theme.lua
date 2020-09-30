@@ -14,6 +14,7 @@ local wibox = require("wibox")
 local dpi   = require("beautiful.xresources").apply_dpi
 local vars = require ("vars")
 local keys = require("keys")
+local rat = require("rat")
 -- local os = os
 -- local gears.table = awful.util.table or gears.table -- 4.{0,1} compatibility
 
@@ -63,6 +64,12 @@ theme.widget_battery_40                         = ""
 theme.widget_battery_30                         = ""
 theme.widget_battery_20                         = ""
 theme.widget_battery_empty                      = ""
+
+theme.speaker_icon                              = "墳"
+theme.speaker_icon_muted                        = "婢"
+theme.mic_icon                                  = ""
+theme.mic_icon_muted                            = ""
+
 theme.widget_mem                                = theme.dir .. "/icons/mem.png"
 theme.widget_cpu                                = theme.dir .. "/icons/cpu.png"
 theme.widget_temp                               = theme.dir .. "/icons/temp.png"
@@ -266,7 +273,7 @@ local function get_right_bar(s)
         wibox.container.background(mpdicon, theme.bg_focus),
         wibox.container.background(theme.mpd.widget, theme.bg_focus),
         -- volicon,
-        theme.volume.widget,
+        rat.widgets.volume_taskbar.widget,
         memicon,
         mem.widget,
         wibox.container.background(cpuicon, theme.bg_focus),
